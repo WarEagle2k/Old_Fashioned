@@ -11,36 +11,6 @@ function App() {
   const [currentPage, setCurrentPage] = useState('home');
   const [selectedRecipe, setSelectedRecipe] = useState(null);
   const [selectedSpirit, setSelectedSpirit] = useState('all');
-  const [theme, setTheme] = useState(() => {
-    try { return localStorage.getItem('of-theme') || 'dark'; } catch { return 'dark'; }
-  });
-
-  useEffect(() => {
-    const root = document.documentElement;
-    localStorage.setItem('of-theme', theme);
-    const meta = document.querySelector('meta[name="theme-color"]');
-
-    if (theme === 'light') {
-      root.style.setProperty('--color-bg-dark', '#FAFAF9');
-      root.style.setProperty('--color-bg-surface', '#FFFFFF');
-      root.style.setProperty('--color-bg-elevated', '#F5F5F4');
-      root.style.setProperty('--color-bg-hover', '#EEEEEC');
-      root.style.setProperty('--color-cream', '#1C1917');
-      root.style.setProperty('--color-muted', '#78716C');
-      root.style.setProperty('--color-subtle', '#D6D3D1');
-      root.style.setProperty('--color-border', '#E7E5E4');
-      if (meta) meta.setAttribute('content', '#FAFAF9');
-    } else {
-      // Remove overrides so CSS @theme defaults apply
-      ['--color-bg-dark', '--color-bg-surface', '--color-bg-elevated', '--color-bg-hover',
-       '--color-cream', '--color-muted', '--color-subtle', '--color-border'].forEach(
-        (p) => root.style.removeProperty(p)
-      );
-      if (meta) meta.setAttribute('content', '#09090B');
-    }
-  }, [theme]);
-
-  const toggleTheme = useCallback(() => setTheme((t) => (t === 'dark' ? 'light' : 'dark')), []);
 
   const [reviews, setReviews] = useState(() => {
     try {
@@ -62,7 +32,6 @@ function App() {
     }));
   }, []);
 
-  // Hash-based routing
   useEffect(() => {
     const handleHash = () => {
       const hash = window.location.hash.slice(1) || 'home';
@@ -103,7 +72,6 @@ function App() {
             navigate={navigate}
             selectedSpirit={selectedSpirit}
             setSelectedSpirit={setSelectedSpirit}
-            reviews={reviews}
           />
         );
       case 'recipe':
@@ -125,8 +93,8 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-bg-dark">
-      <Navbar currentPage={currentPage} navigate={navigate} theme={theme} toggleTheme={toggleTheme} />
+    <div className="min-h-screen flex flex-col" style={{ backgroundColor: '#09090B', color: '#EDEDEF' }}>
+      <Navbar currentPage={currentPage} navigate={navigate} />
       <main className="flex-1">{renderPage()}</main>
       <Footer navigate={navigate} />
     </div>
