@@ -1,4 +1,6 @@
-import { useState, useId } from 'react';
+import { useState } from 'react';
+
+let starIdCounter = 0;
 
 const iconSizeMap = { sm: 'w-3.5 h-3.5', md: 'w-4 h-4', lg: 'w-5 h-5' };
 
@@ -32,7 +34,7 @@ function StarIcon({ fill = 'full', className = '', gradientId }) {
 
 export default function StarRating({ rating = 0, maxStars = 5, size = 'md', interactive = false, onRate }) {
   const [hovered, setHovered] = useState(0);
-  const baseId = useId();
+  const [baseId] = useState(() => `star-${++starIdCounter}`);
   const displayRating = interactive && hovered > 0 ? hovered : rating;
 
   return (
