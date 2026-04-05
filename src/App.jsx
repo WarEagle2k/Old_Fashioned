@@ -11,6 +11,19 @@ function App() {
   const [currentPage, setCurrentPage] = useState('home');
   const [selectedRecipe, setSelectedRecipe] = useState(null);
   const [selectedSpirit, setSelectedSpirit] = useState('all');
+  const [theme, setTheme] = useState(() => {
+    try { return localStorage.getItem('of-theme') || 'dark'; } catch { return 'dark'; }
+  });
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('of-theme', theme);
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute('content', theme === 'dark' ? '#060E1A' : '#F5F2ED');
+  }, [theme]);
+
+  const toggleTheme = useCallback(() => setTheme((t) => (t === 'dark' ? 'light' : 'dark')), []);
+
   const [reviews, setReviews] = useState(() => {
     try {
       const stored = localStorage.getItem('of-reviews');
@@ -95,7 +108,7 @@ function App() {
 
   return (
     <div className="min-h-screen flex flex-col bg-bg-dark">
-      <Navbar currentPage={currentPage} navigate={navigate} />
+      <Navbar currentPage={currentPage} navigate={navigate} theme={theme} toggleTheme={toggleTheme} />
       <main className="flex-1">{renderPage()}</main>
       <Footer />
     </div>
