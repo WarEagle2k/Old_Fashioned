@@ -1,43 +1,21 @@
 @import "tailwindcss";
 
 @theme {
-  --color-bg-dark: var(--app-bg-dark);
-  --color-bg-surface: var(--app-bg-surface);
-  --color-bg-elevated: var(--app-bg-elevated);
-  --color-bg-hover: var(--app-bg-hover);
+  --color-bg-dark: #09090B;
+  --color-bg-surface: #131316;
+  --color-bg-elevated: #1C1C21;
+  --color-bg-hover: #232329;
   --color-amber: #E2713A;
   --color-gold: #F09055;
   --color-deep-amber: #C4510F;
-  --color-cream: var(--app-cream);
-  --color-muted: var(--app-muted);
-  --color-subtle: var(--app-subtle);
-  --color-border: var(--app-border);
+  --color-cream: #EDEDEF;
+  --color-muted: #71717A;
+  --color-subtle: #3F3F46;
+  --color-border: #27272A;
   --color-success: #34D399;
   --color-rich-red: #EF4444;
   --font-sans: 'Inter', system-ui, sans-serif;
   --font-display: 'Fraunces', serif;
-}
-
-:root {
-  --app-bg-dark: #09090B;
-  --app-bg-surface: #131316;
-  --app-bg-elevated: #1C1C21;
-  --app-bg-hover: #232329;
-  --app-cream: #EDEDEF;
-  --app-muted: #71717A;
-  --app-subtle: #3F3F46;
-  --app-border: #27272A;
-}
-
-html[data-theme="light"] {
-  --app-bg-dark: #FAFAF9;
-  --app-bg-surface: #FFFFFF;
-  --app-bg-elevated: #F5F5F4;
-  --app-bg-hover: #EEEEEC;
-  --app-cream: #1C1917;
-  --app-muted: #78716C;
-  --app-subtle: #D6D3D1;
-  --app-border: #E7E5E4;
 }
 
 * {
