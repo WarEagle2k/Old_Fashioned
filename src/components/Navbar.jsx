@@ -19,7 +19,7 @@ export default function Navbar({ currentPage, navigate, theme, toggleTheme }) {
   return (
     <>
       {/* Desktop top nav */}
-      <nav className={`sticky top-0 z-50 transition-all duration-500 hidden md:block ${
+      <nav className={`sticky top-0 z-50 transition-all duration-500 hidden lg:block ${
         scrolled ? 'glass-strong shadow-2xl shadow-black/20' : 'bg-transparent'
       }`}>
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
@@ -54,7 +54,7 @@ export default function Navbar({ currentPage, navigate, theme, toggleTheme }) {
       </nav>
 
       {/* Mobile top bar (logo only) */}
-      <div className={`sticky top-0 z-50 md:hidden transition-all duration-500 ${
+      <div className={`sticky top-0 z-50 lg:hidden transition-all duration-500 ${
         scrolled ? 'glass-strong shadow-xl shadow-black/20' : 'bg-transparent'
       }`} style={{ paddingTop: 'env(safe-area-inset-top)' }}>
         <div className="px-5 h-14 flex items-center justify-between">
@@ -69,7 +69,7 @@ export default function Navbar({ currentPage, navigate, theme, toggleTheme }) {
       </div>
 
       {/* Mobile bottom tab bar */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 md:hidden glass-strong border-t border-white/10"
+      <div className="fixed bottom-0 left-0 right-0 z-50 lg:hidden glass-strong border-t border-white/10"
         style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
         <div className="flex items-stretch justify-around h-16">
           {navLinks.map(({ page, label, icon }) => (
@@ -93,7 +93,7 @@ export default function Navbar({ currentPage, navigate, theme, toggleTheme }) {
       </div>
 
       {/* Spacer for bottom tab bar on mobile */}
-      <div className="h-16 md:hidden" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }} />
+      <div className="h-16 lg:hidden" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }} />
     </>
   );
 }

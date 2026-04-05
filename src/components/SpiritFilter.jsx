@@ -12,8 +12,8 @@ export default function SpiritFilter({ selected, onSelect }) {
   ];
 
   return (
-    <div className="w-full overflow-x-auto -mx-5 px-5" style={{ scrollbarWidth: 'none' }}>
-      <div className="flex gap-2.5 min-w-max snap-x snap-mandatory">
+    <div className="w-full overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
+      <div className="flex gap-2.5 min-w-max">
         {filters.map((filter) => (
           <button
             key={filter.id}
