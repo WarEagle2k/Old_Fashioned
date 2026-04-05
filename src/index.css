@@ -1,0 +1,50 @@
+@import "tailwindcss";
+
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Lato:wght@300;400;700;900&display=swap');
+
+@theme {
+  --color-bg-dark: #1A1208;
+  --color-bg-surface: #2C1E0F;
+  --color-bg-elevated: #3A2A18;
+  --color-amber: #CF7F1D;
+  --color-gold: #E9A42E;
+  --color-deep-amber: #A94007;
+  --color-cream: #F5F0E8;
+  --color-dusty: #B8A88A;
+  --color-rich-red: #8B2500;
+  --color-success: #6B8E5A;
+  --font-display: 'Playfair Display', serif;
+  --font-body: 'Lato', sans-serif;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--color-bg-dark);
+  color: var(--color-cream);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-bg-dark);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-bg-elevated);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-amber);
+}
