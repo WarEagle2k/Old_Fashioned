@@ -1,55 +1,56 @@
 import StarRating from './StarRating';
 
-const difficultyColors = {
-  Easy: 'bg-success/20 text-success border-success/20',
-  Medium: 'bg-amber/20 text-amber border-amber/20',
-  Hard: 'bg-rich-red/20 text-rich-red border-rich-red/20',
+const spiritColors = {
+  bourbon: 'from-amber-900/40 to-amber-800/20',
+  rye: 'from-yellow-900/40 to-yellow-800/20',
+  scotch: 'from-orange-900/40 to-orange-800/20',
+  japanese: 'from-rose-900/40 to-rose-800/20',
+  rum: 'from-amber-900/40 to-yellow-800/20',
+  mezcal: 'from-emerald-900/40 to-emerald-800/20',
+  brandy: 'from-purple-900/40 to-purple-800/20',
+  cognac: 'from-orange-900/40 to-amber-800/20',
+  tequila: 'from-lime-900/40 to-lime-800/20',
+  gin: 'from-teal-900/40 to-teal-800/20',
+  applejack: 'from-red-900/40 to-red-800/20',
 };
 
 export default function RecipeCard({ recipe, onClick }) {
+  const gradient = spiritColors[recipe.spirit] || spiritColors.bourbon;
+
   return (
     <button
       onClick={() => onClick?.(recipe.id)}
-      className="group w-full text-left glass rounded-2xl overflow-hidden cursor-pointer active:scale-[0.98] hover:-translate-y-1 transition-all duration-300 hover:shadow-xl hover:shadow-amber/10 hover:border-amber/20"
+      className="group w-full text-left bg-bg-surface border border-border rounded-xl overflow-hidden cursor-pointer transition-colors duration-200 hover:border-subtle hover:bg-bg-elevated active:scale-[0.99]"
     >
-      {/* Emoji Header */}
-      <div className="relative h-36 sm:h-40 flex items-center justify-center bg-gradient-to-b from-white/5 to-transparent overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-amber/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-        <span className="text-6xl sm:text-7xl group-hover:scale-110 group-hover:-rotate-6 transition-all duration-500">
-          {recipe.emoji}
-        </span>
+      {/* Color header */}
+      <div className={`relative h-28 sm:h-32 flex items-center justify-center bg-gradient-to-br ${gradient}`}>
+        <span className="text-5xl sm:text-6xl opacity-90">{recipe.emoji}</span>
       </div>
 
       {/* Content */}
-      <div className="p-5 space-y-3">
-        {/* Badges */}
-        <div className="flex items-center gap-2 flex-wrap">
-          <span className="px-2.5 py-1 text-xs font-body font-semibold rounded-full bg-amber/10 text-amber capitalize border border-amber/20">
+      <div className="p-4 space-y-2.5">
+        <div className="flex items-center gap-2">
+          <span className="px-2 py-0.5 text-[11px] font-sans font-medium rounded bg-amber/10 text-amber capitalize">
             {recipe.spirit}
           </span>
-          <span className={`px-2.5 py-1 text-xs font-body font-semibold rounded-full border ${difficultyColors[recipe.difficulty] || difficultyColors.Easy}`}>
+          <span className="px-2 py-0.5 text-[11px] font-sans font-medium rounded bg-bg-elevated text-muted">
             {recipe.difficulty}
           </span>
-          <span className="ml-auto text-xs text-dusty/60 font-body">
-            {recipe.prepTime}
-          </span>
+          <span className="ml-auto text-[11px] text-muted font-sans">{recipe.prepTime}</span>
         </div>
 
-        {/* Name */}
-        <h3 className="font-display text-lg sm:text-xl font-bold text-cream group-hover:text-amber transition-colors duration-300 leading-tight">
+        <h3 className="font-display text-lg font-bold text-cream leading-snug tracking-tight">
           {recipe.name}
         </h3>
 
-        {/* Description */}
-        <p className="text-sm text-dusty font-body leading-relaxed line-clamp-2">
+        <p className="text-[13px] text-muted font-sans leading-relaxed line-clamp-2">
           {recipe.shortDescription}
         </p>
 
-        {/* Rating */}
-        <div className="flex items-center gap-1 pt-2 border-t border-white/5">
+        <div className="flex items-center gap-1.5 pt-1">
           <StarRating rating={recipe.rating} size="sm" />
-          <span className="text-sm text-dusty/70 font-body ml-1">{recipe.rating}</span>
-          <span className="text-xs text-dusty/50 font-body">({recipe.reviewCount})</span>
+          <span className="text-[13px] text-muted font-sans">{recipe.rating}</span>
+          <span className="text-[11px] text-subtle font-sans">({recipe.reviewCount})</span>
         </div>
       </div>
     </button>

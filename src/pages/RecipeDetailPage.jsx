@@ -11,106 +11,76 @@ export default function RecipeDetailPage({ recipeId, navigate, reviews, addRevie
   const [reviewComment, setReviewComment] = useState('');
 
   const recipeReviews = reviews?.[recipeId] || [];
-
   const avgRating = useMemo(() => {
-    const allRatings = [
-      ...Array(recipe?.reviewCount || 0).fill(recipe?.rating || 0),
-      ...recipeReviews.map((r) => r.rating),
-    ];
-    if (allRatings.length === 0) return 0;
-    return allRatings.reduce((a, b) => a + b, 0) / allRatings.length;
+    const all = [...Array(recipe?.reviewCount || 0).fill(recipe?.rating || 0), ...recipeReviews.map((r) => r.rating)];
+    return all.length === 0 ? 0 : all.reduce((a, b) => a + b, 0) / all.length;
   }, [recipe, recipeReviews]);
 
   if (!recipe) {
     return (
       <div className="max-w-3xl mx-auto px-5 py-20 text-center">
-        <span className="text-6xl block mb-4">🥃</span>
-        <h1 className="font-display text-3xl text-cream mb-4">Recipe Not Found</h1>
-        <button onClick={() => navigate('recipes')} className="text-amber hover:text-gold font-body underline cursor-pointer py-2 px-4">
-          Browse all recipes
-        </button>
+        <h1 className="font-sans text-2xl font-bold text-cream mb-4">Recipe Not Found</h1>
+        <button onClick={() => navigate('recipes')} className="text-amber hover:text-gold font-sans text-sm underline cursor-pointer py-2 px-4">Browse all recipes</button>
       </div>
     );
   }
 
   const spirit = spiritTypes.find((s) => s.id === recipe.spirit);
   const toggleIngredient = (idx) => setCheckedIngredients((prev) => ({ ...prev, [idx]: !prev[idx] }));
-
   const handleSubmitReview = (e) => {
     e.preventDefault();
     if (userRating === 0) return;
     addReview(recipeId, { rating: userRating, name: reviewName.trim() || 'Anonymous', comment: reviewComment.trim() });
-    setUserRating(0);
-    setReviewName('');
-    setReviewComment('');
+    setUserRating(0); setReviewName(''); setReviewComment('');
   };
 
   return (
     <div>
-      {/* Hero */}
-      <section className="relative py-12 sm:py-20 px-5 sm:px-6 overflow-hidden">
-        <div className="absolute inset-0 mesh-gradient" />
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[400px] h-[400px] bg-amber/8 rounded-full blur-[120px]" />
-
-        <div className="relative max-w-4xl mx-auto text-center space-y-4 sm:space-y-5 animate-slide-up">
-          <button
-            onClick={() => navigate('recipes')}
-            className="inline-flex items-center gap-1 text-dusty/60 hover:text-amber text-sm font-body transition-colors py-2 px-3 -ml-3 cursor-pointer active:scale-95 rounded-lg"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-            Back to Recipes
+      {/* Header */}
+      <section className="border-b border-border">
+        <div className="max-w-4xl mx-auto px-5 sm:px-6 py-10 sm:py-14 animate-in">
+          <button onClick={() => navigate('recipes')}
+            className="inline-flex items-center gap-1 text-muted hover:text-cream text-[13px] font-sans transition-colors py-2 px-1 -ml-1 cursor-pointer active:scale-95 mb-6">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 19l-7-7 7-7" /></svg>
+            Recipes
           </button>
 
-          <span className="text-6xl sm:text-8xl block animate-float">{recipe.emoji}</span>
-
-          <div className="flex items-center justify-center gap-2 sm:gap-3 flex-wrap">
-            <span className="px-3 py-1.5 text-xs font-body font-semibold rounded-full bg-amber/10 text-amber capitalize border border-amber/20">
-              {spirit?.name || recipe.spirit}
-            </span>
-            <span className="px-3 py-1.5 text-xs font-body font-semibold rounded-full glass">{recipe.difficulty}</span>
-            <span className="px-3 py-1.5 text-xs font-body font-semibold rounded-full glass">{recipe.prepTime}</span>
-          </div>
-
-          <h1 className="font-display text-3xl sm:text-5xl lg:text-6xl font-bold text-cream leading-tight">
-            {recipe.name}
-          </h1>
-
-          <p className="text-dusty font-body text-base sm:text-lg max-w-2xl mx-auto leading-relaxed">
-            {recipe.description}
-          </p>
-
-          <div className="flex items-center justify-center gap-2 pt-2">
-            <StarRating rating={avgRating} size="md" />
-            <span className="text-dusty/60 font-body text-sm">
-              {avgRating.toFixed(1)} ({recipe.reviewCount + recipeReviews.length})
-            </span>
+          <div className="flex items-start gap-5 sm:gap-6">
+            <span className="text-5xl sm:text-6xl shrink-0 mt-1">{recipe.emoji}</span>
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="px-2 py-0.5 text-[11px] font-sans font-medium rounded bg-amber/10 text-amber capitalize">{spirit?.name || recipe.spirit}</span>
+                <span className="px-2 py-0.5 text-[11px] font-sans font-medium rounded bg-bg-elevated text-muted">{recipe.difficulty}</span>
+                <span className="px-2 py-0.5 text-[11px] font-sans font-medium rounded bg-bg-elevated text-muted">{recipe.prepTime}</span>
+              </div>
+              <h1 className="font-display text-2xl sm:text-4xl font-bold text-cream leading-tight tracking-tight">{recipe.name}</h1>
+              <p className="text-sm sm:text-base text-muted font-sans leading-relaxed max-w-2xl">{recipe.description}</p>
+              <div className="flex items-center gap-2">
+                <StarRating rating={avgRating} size="sm" />
+                <span className="text-[13px] text-muted font-sans">{avgRating.toFixed(1)} ({recipe.reviewCount + recipeReviews.length})</span>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
       {/* Content */}
-      <section className="max-w-6xl mx-auto px-5 sm:px-6 lg:px-8 pb-12 sm:pb-16">
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 lg:gap-12">
+      <section className="max-w-4xl mx-auto px-5 sm:px-6 py-10 sm:py-14">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 lg:gap-10">
           {/* Ingredients */}
-          <div className="lg:col-span-2 space-y-4 sm:space-y-6">
-            <div className="glass rounded-2xl p-5 sm:p-6">
-              <h2 className="font-display text-xl sm:text-2xl font-bold text-cream mb-5">Ingredients</h2>
-              <ul className="space-y-1">
+          <div className="lg:col-span-2 space-y-5">
+            <div className="bg-bg-surface border border-border rounded-xl p-5">
+              <h2 className="font-sans text-base font-semibold text-cream mb-4">Ingredients</h2>
+              <ul className="space-y-0.5">
                 {recipe.ingredients.map((ing, idx) => (
                   <li key={idx}>
-                    <label className="flex items-center gap-3 cursor-pointer min-h-[48px] py-1">
-                      <input
-                        type="checkbox"
-                        checked={!!checkedIngredients[idx]}
-                        onChange={() => toggleIngredient(idx)}
-                        className="w-5 h-5 rounded border-dusty/30 text-amber focus:ring-amber/30 accent-amber cursor-pointer shrink-0"
-                      />
-                      <div className={`transition-opacity duration-200 ${checkedIngredients[idx] ? 'opacity-30 line-through' : ''}`}>
-                        <span className="text-amber font-body font-bold text-sm">{ing.amount}</span>{' '}
-                        <span className="text-cream font-body text-sm">{ing.item}</span>
-                        {ing.note && <span className="block text-dusty/50 text-xs font-body mt-0.5">{ing.note}</span>}
+                    <label className="flex items-center gap-3 cursor-pointer min-h-[44px] py-1 rounded-lg hover:bg-bg-elevated/50 px-1 -mx-1 transition-colors">
+                      <input type="checkbox" checked={!!checkedIngredients[idx]} onChange={() => toggleIngredient(idx)}
+                        className="w-4 h-4 rounded border-subtle text-amber accent-amber cursor-pointer shrink-0" />
+                      <div className={`transition-opacity duration-150 ${checkedIngredients[idx] ? 'opacity-30 line-through' : ''}`}>
+                        <span className="text-amber font-sans font-semibold text-[13px]">{ing.amount}</span>{' '}
+                        <span className="text-cream font-sans text-[13px]">{ing.item}</span>
+                        {ing.note && <span className="block text-muted text-[11px] font-sans mt-0.5">{ing.note}</span>}
                       </div>
                     </label>
                   </li>
@@ -118,63 +88,48 @@ export default function RecipeDetailPage({ recipeId, navigate, reviews, addRevie
               </ul>
             </div>
 
-            <div className="glass rounded-2xl p-5 sm:p-6 space-y-4">
-              {[
-                { label: 'Garnish', value: recipe.garnish },
-                { label: 'Ice', value: recipe.ice },
-                { label: 'Glassware', value: recipe.glassware },
-              ].map(({ label, value }) => (
+            <div className="bg-bg-surface border border-border rounded-xl p-5 space-y-3">
+              {[{ label: 'Garnish', value: recipe.garnish }, { label: 'Ice', value: recipe.ice }, { label: 'Glassware', value: recipe.glassware }].map(({ label, value }) => (
                 <div key={label}>
-                  <h3 className="text-xs uppercase tracking-wider text-amber/60 font-body font-semibold mb-1">{label}</h3>
-                  <p className="text-cream font-body text-sm">{value}</p>
+                  <h3 className="text-[11px] uppercase tracking-wider text-muted font-sans font-semibold mb-0.5">{label}</h3>
+                  <p className="text-cream font-sans text-[13px]">{value}</p>
                 </div>
               ))}
             </div>
           </div>
 
           {/* Instructions */}
-          <div className="lg:col-span-3 space-y-4 sm:space-y-6">
-            <div className="glass rounded-2xl p-5 sm:p-6">
-              <h2 className="font-display text-xl sm:text-2xl font-bold text-cream mb-6">Instructions</h2>
+          <div className="lg:col-span-3 space-y-5">
+            <div className="bg-bg-surface border border-border rounded-xl p-5">
+              <h2 className="font-sans text-base font-semibold text-cream mb-5">Instructions</h2>
               <ol className="space-y-0">
                 {recipe.steps.map((step, idx) => (
-                  <li key={idx} className="relative flex gap-4">
+                  <li key={idx} className="relative flex gap-3">
                     <div className="flex flex-col items-center">
-                      <button
-                        onClick={() => setActiveStep(activeStep === idx ? null : idx)}
-                        className={`w-11 h-11 rounded-full flex items-center justify-center text-sm font-body font-bold shrink-0 transition-all duration-300 cursor-pointer active:scale-90 ${
-                          activeStep === idx
-                            ? 'bg-amber text-white shadow-lg shadow-amber/30 scale-110'
-                            : 'glass text-dusty hover:text-amber hover:border-amber/30'
-                        }`}
-                      >
+                      <button onClick={() => setActiveStep(activeStep === idx ? null : idx)}
+                        className={`w-8 h-8 rounded-full flex items-center justify-center text-[13px] font-sans font-semibold shrink-0 transition-colors duration-150 cursor-pointer ${
+                          activeStep === idx ? 'bg-amber text-white' : 'bg-bg-elevated text-muted hover:text-cream'
+                        }`}>
                         {idx + 1}
                       </button>
-                      {idx < recipe.steps.length - 1 && <div className="w-px flex-1 min-h-[16px] bg-white/5" />}
+                      {idx < recipe.steps.length - 1 && <div className="w-px flex-1 min-h-[12px] bg-border" />}
                     </div>
-                    <div className="pb-6 pt-2.5">
-                      <p className={`font-body text-sm leading-relaxed transition-colors duration-200 ${activeStep === idx ? 'text-cream' : 'text-dusty'}`}>
-                        {step}
-                      </p>
+                    <div className="pb-5 pt-1">
+                      <p className={`font-sans text-[13px] leading-relaxed transition-colors duration-150 ${activeStep === idx ? 'text-cream' : 'text-muted'}`}>{step}</p>
                     </div>
                   </li>
                 ))}
               </ol>
             </div>
 
-            {recipe.tips && recipe.tips.length > 0 && (
-              <div className="rounded-2xl p-5 sm:p-6 bg-amber/5 border border-amber/15">
-                <h3 className="font-display text-lg font-bold text-amber mb-4 flex items-center gap-2">
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                  </svg>
-                  Pro Tips
-                </h3>
-                <ul className="space-y-3">
+            {recipe.tips?.length > 0 && (
+              <div className="bg-amber/[0.04] border border-amber/10 rounded-xl p-5">
+                <h3 className="font-sans text-sm font-semibold text-amber mb-3">Pro Tips</h3>
+                <ul className="space-y-2">
                   {recipe.tips.map((tip, idx) => (
-                    <li key={idx} className="flex gap-3">
-                      <span className="text-amber/40 mt-0.5 shrink-0">&#9670;</span>
-                      <span className="text-cream/70 font-body text-sm leading-relaxed">{tip}</span>
+                    <li key={idx} className="flex gap-2">
+                      <span className="text-amber/40 mt-0.5 shrink-0 text-xs">&bull;</span>
+                      <span className="text-cream/70 font-sans text-[13px] leading-relaxed">{tip}</span>
                     </li>
                   ))}
                 </ul>
@@ -185,61 +140,51 @@ export default function RecipeDetailPage({ recipeId, navigate, reviews, addRevie
       </section>
 
       {/* Reviews */}
-      <section className="max-w-3xl mx-auto px-5 sm:px-6 pb-16 space-y-8">
-        <div className="flex items-center gap-4">
-          <div className="flex-1 h-px bg-gradient-to-r from-transparent to-white/10" />
-          <span className="text-amber/40 text-xs tracking-[0.2em] font-body uppercase">Reviews</span>
-          <div className="flex-1 h-px bg-gradient-to-l from-transparent to-white/10" />
-        </div>
-
-        <div className="text-center">
-          <p className="text-4xl sm:text-5xl font-display font-bold gradient-text mb-2">{avgRating.toFixed(1)}</p>
-          <StarRating rating={avgRating} size="lg" />
-          <p className="text-dusty/50 font-body text-sm mt-2">{recipe.reviewCount + recipeReviews.length} reviews</p>
-        </div>
-
-        <form onSubmit={handleSubmitReview} className="glass rounded-2xl p-5 sm:p-6 space-y-5">
-          <h3 className="font-display text-xl font-bold text-cream">Leave a Review</h3>
-
-          <div>
-            <label className="block text-sm text-dusty/70 font-body mb-2">Your Rating</label>
-            <StarRating rating={userRating} size="lg" interactive onRate={setUserRating} />
+      <section className="border-t border-border">
+        <div className="max-w-2xl mx-auto px-5 sm:px-6 py-12 sm:py-16 space-y-8">
+          <div className="text-center space-y-2">
+            <p className="text-3xl font-sans font-bold text-cream">{avgRating.toFixed(1)}</p>
+            <StarRating rating={avgRating} size="md" />
+            <p className="text-[13px] text-muted font-sans">{recipe.reviewCount + recipeReviews.length} reviews</p>
           </div>
 
-          <div>
-            <label className="block text-sm text-dusty/70 font-body mb-2">Name (optional)</label>
-            <input type="text" value={reviewName} onChange={(e) => setReviewName(e.target.value)} placeholder="Anonymous"
-              className="w-full px-4 py-3 glass text-cream placeholder:text-dusty/30 rounded-xl font-body text-sm focus:outline-none focus:border-amber/30 focus:ring-1 focus:ring-amber/20 transition-all" />
-          </div>
+          <form onSubmit={handleSubmitReview} className="bg-bg-surface border border-border rounded-xl p-5 space-y-4">
+            <h3 className="font-sans text-base font-semibold text-cream">Leave a Review</h3>
+            <div>
+              <label className="block text-[13px] text-muted font-sans mb-1.5">Rating</label>
+              <StarRating rating={userRating} size="md" interactive onRate={setUserRating} />
+            </div>
+            <div>
+              <label className="block text-[13px] text-muted font-sans mb-1.5">Name</label>
+              <input type="text" value={reviewName} onChange={(e) => setReviewName(e.target.value)} placeholder="Anonymous"
+                className="w-full px-3 py-2 bg-bg-dark border border-border text-cream placeholder:text-subtle rounded-lg font-sans text-sm focus:outline-none focus:border-muted transition-colors" />
+            </div>
+            <div>
+              <label className="block text-[13px] text-muted font-sans mb-1.5">Comment</label>
+              <textarea value={reviewComment} onChange={(e) => setReviewComment(e.target.value)} rows={3} placeholder="Share your thoughts..."
+                className="w-full px-3 py-2 bg-bg-dark border border-border text-cream placeholder:text-subtle rounded-lg font-sans text-sm focus:outline-none focus:border-muted transition-colors resize-none" />
+            </div>
+            <button type="submit" disabled={userRating === 0}
+              className="px-5 py-2 bg-amber hover:bg-gold text-white font-sans font-semibold text-sm rounded-lg transition-colors duration-200 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer active:scale-95">
+              Submit
+            </button>
+          </form>
 
-          <div>
-            <label className="block text-sm text-dusty/70 font-body mb-2">Comment</label>
-            <textarea value={reviewComment} onChange={(e) => setReviewComment(e.target.value)} rows={3} placeholder="Share your thoughts..."
-              className="w-full px-4 py-3 glass text-cream placeholder:text-dusty/30 rounded-xl font-body text-sm focus:outline-none focus:border-amber/30 focus:ring-1 focus:ring-amber/20 transition-all resize-none" />
-          </div>
-
-          <button type="submit" disabled={userRating === 0}
-            className="w-full sm:w-auto px-8 py-3 bg-amber hover:bg-gold text-white font-body font-bold text-sm rounded-full transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer shadow-lg shadow-amber/20 active:scale-95">
-            Submit Review
-          </button>
-        </form>
-
-        {recipeReviews.length > 0 && (
-          <div className="space-y-3">
-            {recipeReviews.slice().reverse().map((review, idx) => (
-              <div key={idx} className="glass rounded-2xl p-5 space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-cream font-body font-medium text-sm">{review.name || 'Anonymous'}</span>
-                  <span className="text-dusty/50 text-xs font-body">
-                    {new Date(review.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
-                  </span>
+          {recipeReviews.length > 0 && (
+            <div className="space-y-3">
+              {recipeReviews.slice().reverse().map((review, idx) => (
+                <div key={idx} className="bg-bg-surface border border-border rounded-xl p-4 space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-cream font-sans font-medium text-[13px]">{review.name || 'Anonymous'}</span>
+                    <span className="text-subtle text-[11px] font-sans">{new Date(review.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                  </div>
+                  <StarRating rating={review.rating} size="sm" />
+                  {review.comment && <p className="text-muted font-sans text-[13px] leading-relaxed">{review.comment}</p>}
                 </div>
-                <StarRating rating={review.rating} size="sm" />
-                {review.comment && <p className="text-dusty/70 font-body text-sm leading-relaxed">{review.comment}</p>}
-              </div>
-            ))}
-          </div>
-        )}
+              ))}
+            </div>
+          )}
+        </div>
       </section>
     </div>
   );

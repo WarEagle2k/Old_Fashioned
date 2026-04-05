@@ -19,7 +19,7 @@ function App() {
     document.documentElement.setAttribute('data-theme', theme);
     localStorage.setItem('of-theme', theme);
     const meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) meta.setAttribute('content', theme === 'dark' ? '#060E1A' : '#F5F2ED');
+    if (meta) meta.setAttribute('content', theme === 'dark' ? '#09090B' : '#FAFAF9');
   }, [theme]);
 
   const toggleTheme = useCallback(() => setTheme((t) => (t === 'dark' ? 'light' : 'dark')), []);
@@ -110,7 +110,7 @@ function App() {
     <div className="min-h-screen flex flex-col bg-bg-dark">
       <Navbar currentPage={currentPage} navigate={navigate} theme={theme} toggleTheme={toggleTheme} />
       <main className="flex-1">{renderPage()}</main>
-      <Footer />
+      <Footer navigate={navigate} />
     </div>
   );
 }

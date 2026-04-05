@@ -5,29 +5,26 @@ export default function SpiritFilter({ selected, onSelect }) {
 
   const filters = [
     { id: 'all', name: 'All', count: allCount },
-    ...spiritTypes.map((s) => ({
-      ...s,
-      count: getRecipesBySpirit(s.id).length,
-    })),
+    ...spiritTypes.map((s) => ({ ...s, count: getRecipesBySpirit(s.id).length })),
   ];
 
   return (
     <div className="w-full overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
-      <div className="flex gap-2.5 min-w-max">
+      <div className="flex gap-1.5 min-w-max">
         {filters.map((filter) => (
           <button
             key={filter.id}
             onClick={() => onSelect(filter.id)}
-            className={`snap-start flex items-center gap-1.5 px-4 py-2.5 min-h-[44px] rounded-full text-sm font-body font-medium whitespace-nowrap transition-all duration-300 cursor-pointer active:scale-95 border ${
+            className={`flex items-center gap-1.5 px-3 py-2 min-h-[36px] rounded-lg text-[13px] font-sans font-medium whitespace-nowrap transition-colors duration-150 cursor-pointer active:scale-95 ${
               selected === filter.id
-                ? 'bg-amber text-white shadow-lg shadow-amber/20 border-amber'
-                : 'glass border-white/5 text-cream/80 hover:bg-white/10 hover:text-cream'
+                ? 'bg-cream text-bg-dark'
+                : 'text-muted hover:text-cream hover:bg-bg-elevated'
             }`}
           >
-            {filter.emoji && <span className="text-base">{filter.emoji}</span>}
+            {filter.emoji && <span className="text-sm">{filter.emoji}</span>}
             <span>{filter.name}</span>
-            <span className={`text-xs px-1.5 py-0.5 rounded-full ${
-              selected === filter.id ? 'bg-white/20 text-white' : 'bg-white/5 text-dusty/50'
+            <span className={`text-[11px] px-1 py-0.5 rounded ${
+              selected === filter.id ? 'bg-bg-dark/10' : 'text-subtle'
             }`}>
               {filter.count}
             </span>

@@ -1,28 +1,23 @@
-export default function Footer() {
+export default function Footer({ navigate }) {
   return (
-    <footer className="relative mt-auto border-t border-white/5 mb-16 lg:mb-0">
-      <div className="absolute inset-0 mesh-gradient opacity-30" />
-      <div className="relative max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 py-10">
-        <div className="flex flex-col items-center gap-6 text-center">
-          {/* Logo */}
+    <footer className="mt-auto border-t border-border mb-14 lg:mb-0">
+      <div className="max-w-6xl mx-auto px-5 sm:px-6 py-8">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <span className="text-xl">🥃</span>
-            <span className="font-display text-lg text-cream font-semibold tracking-wide">
-              The Old Fashioned
-            </span>
+            <span className="text-base">🥃</span>
+            <span className="font-sans text-sm font-semibold text-cream tracking-tight">The Old Fashioned</span>
           </div>
 
-          {/* Links - hidden on mobile since we have bottom tab bar */}
-          <div className="hidden lg:flex items-center gap-6 text-sm">
+          <div className="hidden lg:flex items-center gap-4">
             {['home', 'recipes', 'builder', 'about'].map((page) => (
-              <a key={page} href={`#${page}`} className="text-dusty/50 hover:text-amber transition-colors duration-300 font-body capitalize py-2">
+              <button key={page} onClick={() => navigate?.(page)} className="text-[13px] text-muted hover:text-cream transition-colors font-sans capitalize cursor-pointer py-1">
                 {page}
-              </a>
+              </button>
             ))}
           </div>
 
-          <p className="text-dusty/40 text-xs font-body">
-            Please drink responsibly &middot; &copy; {new Date().getFullYear()}
+          <p className="text-muted text-xs font-sans">
+            Drink responsibly &middot; &copy; {new Date().getFullYear()}
           </p>
         </div>
       </div>
