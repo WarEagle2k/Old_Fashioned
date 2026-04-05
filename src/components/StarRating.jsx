@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-const sizeMap = {
+const iconSizeMap = {
   sm: 'w-4 h-4',
   md: 'w-5 h-5',
   lg: 'w-7 h-7',
@@ -23,12 +23,7 @@ function StarIcon({ fill = 'full', className = '' }) {
             <stop offset="50%" stopColor="transparent" />
           </linearGradient>
         </defs>
-        <path
-          d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
-          fill="url(#halfGrad)"
-          stroke="currentColor"
-          strokeWidth="1.5"
-        />
+        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="url(#halfGrad)" stroke="currentColor" strokeWidth="1.5" />
       </svg>
     );
   }
@@ -39,43 +34,33 @@ function StarIcon({ fill = 'full', className = '' }) {
   );
 }
 
-export default function StarRating({
-  rating = 0,
-  maxStars = 5,
-  size = 'md',
-  interactive = false,
-  onRate,
-}) {
+export default function StarRating({ rating = 0, maxStars = 5, size = 'md', interactive = false, onRate }) {
   const [hovered, setHovered] = useState(0);
-
   const displayRating = interactive && hovered > 0 ? hovered : rating;
 
   const stars = [];
   for (let i = 1; i <= maxStars; i++) {
     let fill = 'empty';
-    if (i <= Math.floor(displayRating)) {
-      fill = 'full';
-    } else if (i - 0.5 <= displayRating && !interactive) {
-      fill = 'half';
-    }
+    if (i <= Math.floor(displayRating)) fill = 'full';
+    else if (i - 0.5 <= displayRating && !interactive) fill = 'half';
 
     stars.push(
       <button
         key={i}
         type="button"
         disabled={!interactive}
-        className={`${interactive ? 'cursor-pointer hover:scale-125' : 'cursor-default'} transition-transform duration-150 ${
-          fill === 'empty' ? 'text-dusty/50' : 'text-gold'
-        } ${sizeMap[size]}`}
+        className={`flex items-center justify-center min-w-[44px] min-h-[44px] ${
+          interactive ? 'cursor-pointer active:scale-110' : 'cursor-default'
+        } transition-transform duration-150 ${fill === 'empty' ? 'text-dusty/40' : 'text-gold'}`}
         onClick={() => interactive && onRate?.(i)}
         onMouseEnter={() => interactive && setHovered(i)}
         onMouseLeave={() => interactive && setHovered(0)}
         aria-label={`${i} star${i !== 1 ? 's' : ''}`}
       >
-        <StarIcon fill={fill} className="w-full h-full" />
+        <StarIcon fill={fill} className={iconSizeMap[size]} />
       </button>
     );
   }
 
-  return <div className="flex items-center gap-0.5">{stars}</div>;
+  return <div className="flex items-center -mx-2">{stars}</div>;
 }
