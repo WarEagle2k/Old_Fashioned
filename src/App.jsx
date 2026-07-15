@@ -6,6 +6,16 @@ import RecipesPage from './pages/RecipesPage';
 import RecipeDetailPage from './pages/RecipeDetailPage';
 import BuilderPage from './pages/BuilderPage';
 import AboutPage from './pages/AboutPage';
+import { getRecipeById } from './data/recipes';
+
+const validPages = ['home', 'recipes', 'recipe', 'builder', 'about'];
+
+const pageTitles = {
+  home: 'The Old Fashioned | Craft Cocktail Guide',
+  recipes: 'Recipes | The Old Fashioned',
+  builder: 'Build Your Own | The Old Fashioned',
+  about: 'About | The Old Fashioned',
+};
 
 function App() {
   const [currentPage, setCurrentPage] = useState('home');
@@ -22,7 +32,11 @@ function App() {
   });
 
   useEffect(() => {
-    localStorage.setItem('of-reviews', JSON.stringify(reviews));
+    try {
+      localStorage.setItem('of-reviews', JSON.stringify(reviews));
+    } catch {
+      // Storage unavailable (private mode, quota) — reviews stay in memory.
+    }
   }, [reviews]);
 
   const addReview = useCallback((recipeId, review) => {
@@ -41,9 +55,9 @@ function App() {
         setSelectedRecipe(parts[1]);
       } else if (parts[0] === 'recipes') {
         setCurrentPage('recipes');
-        if (parts[1]) setSelectedSpirit(parts[1]);
+        setSelectedSpirit(parts[1] || 'all');
       } else {
-        setCurrentPage(parts[0] || 'home');
+        setCurrentPage(validPages.includes(parts[0]) ? parts[0] : 'home');
       }
     };
     handleHash();
@@ -51,27 +65,43 @@ function App() {
     return () => window.removeEventListener('hashchange', handleHash);
   }, []);
 
+  // Keep the document title in sync with the current page
+  useEffect(() => {
+    if (currentPage === 'recipe') {
+      const recipe = getRecipeById(selectedRecipe);
+      document.title = recipe
+        ? `${recipe.name} | The Old Fashioned`
+        : 'Recipe Not Found | The Old Fashioned';
+    } else {
+      document.title = pageTitles[currentPage] || pageTitles.home;
+    }
+  }, [currentPage, selectedRecipe]);
+
   const navigate = useCallback((page, param) => {
+    const previousPage = window.location.hash.slice(1).split('/')[0] || 'home';
     if (page === 'recipe') {
       window.location.hash = `recipe/${param}`;
-    } else if (page === 'recipes' && param) {
+    } else if (page === 'recipes' && param && param !== 'all') {
       window.location.hash = `recipes/${param}`;
     } else {
       window.location.hash = page;
     }
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Changing the spirit filter stays on the recipes page — don't yank the scroll position
+    if (!(page === 'recipes' && previousPage === 'recipes')) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   }, []);
 
   const renderPage = () => {
     switch (currentPage) {
       case 'home':
-        return <HomePage navigate={navigate} />;
+        return <HomePage navigate={navigate} reviews={reviews} />;
       case 'recipes':
         return (
           <RecipesPage
             navigate={navigate}
             selectedSpirit={selectedSpirit}
-            setSelectedSpirit={setSelectedSpirit}
+            reviews={reviews}
           />
         );
       case 'recipe':
@@ -84,11 +114,11 @@ function App() {
           />
         );
       case 'builder':
-        return <BuilderPage navigate={navigate} />;
+        return <BuilderPage />;
       case 'about':
         return <AboutPage />;
       default:
-        return <HomePage navigate={navigate} />;
+        return <HomePage navigate={navigate} reviews={reviews} />;
     }
   };
 

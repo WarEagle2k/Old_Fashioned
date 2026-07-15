@@ -668,3 +668,14 @@ export const getRecipeById = (id) => {
 export const getTopRecipes = (count = 3) => {
   return [...recipes].sort((a, b) => b.rating - a.rating).slice(0, count);
 };
+
+// Blend a recipe's seed rating with reviews the user has submitted locally
+export const getCombinedRating = (recipe, userReviews = []) => {
+  const baseCount = recipe?.reviewCount || 0;
+  const count = baseCount + userReviews.length;
+  if (count === 0) return { rating: 0, count: 0 };
+  const total =
+    (recipe?.rating || 0) * baseCount +
+    userReviews.reduce((sum, r) => sum + (r.rating || 0), 0);
+  return { rating: total / count, count };
+};

@@ -1,4 +1,5 @@
 import StarRating from './StarRating';
+import { getCombinedRating } from '../data/recipes';
 
 const spiritColors = {
   bourbon: 'from-amber-900/40 to-amber-800/20',
@@ -14,8 +15,9 @@ const spiritColors = {
   applejack: 'from-red-900/40 to-red-800/20',
 };
 
-export default function RecipeCard({ recipe, onClick }) {
+export default function RecipeCard({ recipe, onClick, userReviews = [] }) {
   const gradient = spiritColors[recipe.spirit] || spiritColors.bourbon;
+  const { rating, count } = getCombinedRating(recipe, userReviews);
 
   return (
     <button
@@ -48,9 +50,9 @@ export default function RecipeCard({ recipe, onClick }) {
         </p>
 
         <div className="flex items-center gap-1.5 pt-1">
-          <StarRating rating={recipe.rating} size="sm" />
-          <span className="text-[13px] text-muted font-sans">{recipe.rating}</span>
-          <span className="text-[11px] text-subtle font-sans">({recipe.reviewCount})</span>
+          <StarRating rating={rating} size="sm" />
+          <span className="text-[13px] text-muted font-sans">{rating.toFixed(1)}</span>
+          <span className="text-[11px] text-subtle font-sans">({count})</span>
         </div>
       </div>
     </button>

@@ -10,7 +10,7 @@ const sortOptions = [
 ];
 const difficultyOrder = { Easy: 1, Medium: 2, Hard: 3 };
 
-export default function RecipesPage({ navigate, selectedSpirit, setSelectedSpirit }) {
+export default function RecipesPage({ navigate, selectedSpirit, reviews }) {
   const [search, setSearch] = useState('');
   const [sortBy, setSortBy] = useState('rating');
 
@@ -38,7 +38,7 @@ export default function RecipesPage({ navigate, selectedSpirit, setSelectedSpiri
       </div>
 
       <div className="mb-5">
-        <SpiritFilter selected={selectedSpirit} onSelect={setSelectedSpirit} />
+        <SpiritFilter selected={selectedSpirit} onSelect={(id) => navigate('recipes', id)} />
       </div>
 
       <div className="flex flex-col sm:flex-row gap-3 mb-6">
@@ -68,7 +68,12 @@ export default function RecipesPage({ navigate, selectedSpirit, setSelectedSpiri
       {filtered.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {filtered.map((recipe) => (
-            <RecipeCard key={recipe.id} recipe={recipe} onClick={(id) => navigate('recipe', id)} />
+            <RecipeCard
+              key={recipe.id}
+              recipe={recipe}
+              userReviews={reviews?.[recipe.id]}
+              onClick={(id) => navigate('recipe', id)}
+            />
           ))}
         </div>
       ) : (
