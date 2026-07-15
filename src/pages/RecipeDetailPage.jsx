@@ -1,5 +1,5 @@
-import { useState, useMemo } from 'react';
-import { getRecipeById, spiritTypes } from '../data/recipes';
+import { useState } from 'react';
+import { getRecipeById, getCombinedRating, spiritTypes } from '../data/recipes';
 import StarRating from '../components/StarRating';
 
 export default function RecipeDetailPage({ recipeId, navigate, reviews, addReview }) {
@@ -9,17 +9,10 @@ export default function RecipeDetailPage({ recipeId, navigate, reviews, addRevie
   const [userRating, setUserRating] = useState(0);
   const [reviewName, setReviewName] = useState('');
   const [reviewComment, setReviewComment] = useState('');
+  const [reviewSubmitted, setReviewSubmitted] = useState(false);
 
   const recipeReviews = reviews?.[recipeId] || [];
-
-  const avgRating = useMemo(() => {
-    const allRatings = [
-      ...Array(recipe?.reviewCount || 0).fill(recipe?.rating || 0),
-      ...recipeReviews.map((r) => r.rating),
-    ];
-    if (allRatings.length === 0) return 0;
-    return allRatings.reduce((a, b) => a + b, 0) / allRatings.length;
-  }, [recipe, recipeReviews]);
+  const { rating: avgRating, count: totalReviews } = getCombinedRating(recipe, recipeReviews);
 
   if (!recipe) {
     return (
@@ -53,6 +46,7 @@ export default function RecipeDetailPage({ recipeId, navigate, reviews, addRevie
     setUserRating(0);
     setReviewName('');
     setReviewComment('');
+    setReviewSubmitted(true);
   };
 
   return (
@@ -93,7 +87,7 @@ export default function RecipeDetailPage({ recipeId, navigate, reviews, addRevie
           <div className="flex items-center justify-center gap-2 pt-2">
             <StarRating rating={avgRating} size="md" />
             <span className="text-dusty/60 font-body text-sm">
-              {avgRating.toFixed(1)} ({recipe.reviewCount + recipeReviews.length} reviews)
+              {avgRating.toFixed(1)} ({totalReviews} reviews)
             </span>
           </div>
         </div>
@@ -225,7 +219,7 @@ export default function RecipeDetailPage({ recipeId, navigate, reviews, addRevie
           <p className="text-5xl font-display font-bold text-cream mb-2">{avgRating.toFixed(1)}</p>
           <StarRating rating={avgRating} size="lg" />
           <p className="text-dusty/50 font-body text-sm mt-2">
-            {recipe.reviewCount + recipeReviews.length} reviews
+            {totalReviews} reviews
           </p>
         </div>
 
@@ -238,7 +232,15 @@ export default function RecipeDetailPage({ recipeId, navigate, reviews, addRevie
 
           <div>
             <label className="block text-sm text-dusty/70 font-body mb-2">Your Rating</label>
-            <StarRating rating={userRating} size="lg" interactive onRate={setUserRating} />
+            <StarRating
+              rating={userRating}
+              size="lg"
+              interactive
+              onRate={(r) => {
+                setUserRating(r);
+                setReviewSubmitted(false);
+              }}
+            />
           </div>
 
           <div>
@@ -263,13 +265,20 @@ export default function RecipeDetailPage({ recipeId, navigate, reviews, addRevie
             />
           </div>
 
-          <button
-            type="submit"
-            disabled={userRating === 0}
-            className="px-6 py-2.5 bg-amber hover:bg-gold text-bg-dark font-body font-bold text-sm rounded-lg transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer shadow-md shadow-amber/15"
-          >
-            Submit Review
-          </button>
+          <div className="flex items-center gap-4 flex-wrap">
+            <button
+              type="submit"
+              disabled={userRating === 0}
+              className="px-6 py-2.5 bg-amber hover:bg-gold text-bg-dark font-body font-bold text-sm rounded-lg transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer shadow-md shadow-amber/15"
+            >
+              Submit Review
+            </button>
+            {reviewSubmitted && (
+              <p role="status" className="text-success font-body text-sm">
+                Thanks — your review has been added!
+              </p>
+            )}
+          </div>
         </form>
 
         {/* Review List */}
@@ -280,7 +289,7 @@ export default function RecipeDetailPage({ recipeId, navigate, reviews, addRevie
               .reverse()
               .map((review, idx) => (
                 <div
-                  key={idx}
+                  key={review.date || idx}
                   className="bg-bg-surface rounded-xl border border-bg-elevated/50 p-5 space-y-2"
                 >
                   <div className="flex items-center justify-between">

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useId } from 'react';
 
 const sizeMap = {
   sm: 'w-4 h-4',
@@ -6,11 +6,13 @@ const sizeMap = {
   lg: 'w-7 h-7',
 };
 
-function StarIcon({ fill = 'full', className = '' }) {
+const STAR_PATH = 'M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z';
+
+function StarIcon({ fill = 'full', className = '', gradientId }) {
   if (fill === 'empty') {
     return (
       <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="1.5">
-        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+        <path d={STAR_PATH} />
       </svg>
     );
   }
@@ -18,23 +20,18 @@ function StarIcon({ fill = 'full', className = '' }) {
     return (
       <svg viewBox="0 0 24 24" className={className}>
         <defs>
-          <linearGradient id="halfGrad">
+          <linearGradient id={gradientId}>
             <stop offset="50%" stopColor="currentColor" />
             <stop offset="50%" stopColor="transparent" />
           </linearGradient>
         </defs>
-        <path
-          d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
-          fill="url(#halfGrad)"
-          stroke="currentColor"
-          strokeWidth="1.5"
-        />
+        <path d={STAR_PATH} fill={`url(#${gradientId})`} stroke="currentColor" strokeWidth="1.5" />
       </svg>
     );
   }
   return (
     <svg viewBox="0 0 24 24" className={className} fill="currentColor" stroke="currentColor" strokeWidth="0.5">
-      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+      <path d={STAR_PATH} />
     </svg>
   );
 }
@@ -47,6 +44,7 @@ export default function StarRating({
   onRate,
 }) {
   const [hovered, setHovered] = useState(0);
+  const gradientId = useId();
 
   const displayRating = interactive && hovered > 0 ? hovered : rating;
 
@@ -59,23 +57,41 @@ export default function StarRating({
       fill = 'half';
     }
 
+    const colorClass = fill === 'empty' ? 'text-dusty/50' : 'text-gold';
+    const icon = <StarIcon fill={fill} className="w-full h-full" gradientId={`${gradientId}-${i}`} />;
+
+    // Read-only ratings render as plain spans — StarRating is often nested
+    // inside clickable cards, where <button> children are invalid HTML.
     stars.push(
-      <button
-        key={i}
-        type="button"
-        disabled={!interactive}
-        className={`${interactive ? 'cursor-pointer hover:scale-125' : 'cursor-default'} transition-transform duration-150 ${
-          fill === 'empty' ? 'text-dusty/50' : 'text-gold'
-        } ${sizeMap[size]}`}
-        onClick={() => interactive && onRate?.(i)}
-        onMouseEnter={() => interactive && setHovered(i)}
-        onMouseLeave={() => interactive && setHovered(0)}
-        aria-label={`${i} star${i !== 1 ? 's' : ''}`}
-      >
-        <StarIcon fill={fill} className="w-full h-full" />
-      </button>
+      interactive ? (
+        <button
+          key={i}
+          type="button"
+          className={`cursor-pointer hover:scale-125 transition-transform duration-150 ${colorClass} ${sizeMap[size]}`}
+          onClick={() => onRate?.(i)}
+          onMouseEnter={() => setHovered(i)}
+          onMouseLeave={() => setHovered(0)}
+          aria-label={`Rate ${i} star${i !== 1 ? 's' : ''}`}
+        >
+          {icon}
+        </button>
+      ) : (
+        <span key={i} aria-hidden="true" className={`${colorClass} ${sizeMap[size]}`}>
+          {icon}
+        </span>
+      )
     );
   }
 
-  return <div className="flex items-center gap-0.5">{stars}</div>;
+  return (
+    <div
+      className="flex items-center gap-0.5"
+      {...(!interactive && {
+        role: 'img',
+        'aria-label': `Rated ${Number(rating).toFixed(1)} out of ${maxStars} stars`,
+      })}
+    >
+      {stars}
+    </div>
+  );
 }

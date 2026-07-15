@@ -1,5 +1,22 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { builderOptions } from '../data/recipes';
+
+function loadFavorites() {
+  try {
+    const stored = JSON.parse(localStorage.getItem('of-favorites') || '[]');
+    return Array.isArray(stored) ? stored : [];
+  } catch {
+    return [];
+  }
+}
+
+function persistFavorites(favorites) {
+  try {
+    localStorage.setItem('of-favorites', JSON.stringify(favorites));
+  } catch {
+    // Storage unavailable — favorites stay in memory for this session.
+  }
+}
 
 const steps = [
   { key: 'spirit', title: 'Choose Your Spirit', options: builderOptions.spirits },
@@ -51,7 +68,7 @@ function generateInstructions(selections) {
   ].filter(Boolean);
 }
 
-export default function BuilderPage({ navigate }) {
+export default function BuilderPage() {
   const [currentStep, setCurrentStep] = useState(0);
   const [selections, setSelections] = useState({
     spirit: null,
@@ -62,9 +79,11 @@ export default function BuilderPage({ navigate }) {
   });
   const [showResult, setShowResult] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [favorites, setFavorites] = useState(loadFavorites);
 
   const select = (key, value) => {
     setSelections((prev) => ({ ...prev, [key]: value }));
+    setSaved(false);
   };
 
   const canAdvance = () => {
@@ -89,20 +108,22 @@ export default function BuilderPage({ navigate }) {
   };
 
   const saveFavorite = () => {
-    try {
-      const favorites = JSON.parse(localStorage.getItem('of-favorites') || '[]');
-      const entry = {
-        id: Date.now(),
-        name: generateName(selections),
-        selections: { ...selections },
-        createdAt: new Date().toISOString(),
-      };
-      favorites.push(entry);
-      localStorage.setItem('of-favorites', JSON.stringify(favorites));
-      setSaved(true);
-    } catch {
-      // ignore
-    }
+    const entry = {
+      id: Date.now(),
+      name: generateName(selections),
+      selections: { ...selections },
+      createdAt: new Date().toISOString(),
+    };
+    const updated = [...favorites, entry];
+    setFavorites(updated);
+    persistFavorites(updated);
+    setSaved(true);
+  };
+
+  const deleteFavorite = (id) => {
+    const updated = favorites.filter((f) => f.id !== id);
+    setFavorites(updated);
+    persistFavorites(updated);
   };
 
   const drinkEmoji = () => {
@@ -373,8 +394,74 @@ export default function BuilderPage({ navigate }) {
           {currentStep === 3 ? 'Create My Drink' : 'Next Step'}
         </button>
       </div>
+
+      {/* Saved Creations */}
+      {favorites.length > 0 && (
+        <div className="mt-16">
+          <div className="flex items-center gap-4 mb-8">
+            <div className="flex-1 h-px bg-gradient-to-r from-transparent to-amber/20" />
+            <span className="text-amber/50 text-xs tracking-widest font-body uppercase">
+              Your Saved Creations
+            </span>
+            <div className="flex-1 h-px bg-gradient-to-l from-transparent to-amber/20" />
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {favorites
+              .slice()
+              .reverse()
+              .map((fav) => (
+                <div
+                  key={fav.id}
+                  className="bg-bg-surface rounded-xl border border-bg-elevated/50 p-5 flex items-start gap-4"
+                >
+                  <span className="text-3xl">{selectionEmojis(fav.selections)[0] || '🥃'}</span>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-display text-base font-bold text-cream truncate">{fav.name}</p>
+                    <p className="text-lg mt-1" aria-hidden="true">
+                      {selectionEmojis(fav.selections).join(' + ')}
+                    </p>
+                    <p className="text-dusty/40 text-xs font-body mt-1">
+                      {new Date(fav.createdAt).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                      })}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => deleteFavorite(fav.id)}
+                    className="p-1.5 text-dusty/40 hover:text-rich-red transition-colors cursor-pointer shrink-0"
+                    aria-label={`Delete ${fav.name}`}
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                      />
+                    </svg>
+                  </button>
+                </div>
+              ))}
+          </div>
+        </div>
+      )}
     </div>
   );
+}
+
+function selectionEmojis(selections = {}) {
+  const lookups = [
+    ['spirit', builderOptions.spirits],
+    ['sweetener', builderOptions.sweeteners],
+    ['bitters', builderOptions.bitters],
+    ['garnish', builderOptions.garnishes],
+    ['ice', builderOptions.iceStyles],
+  ];
+  return lookups
+    .map(([key, list]) => list.find((o) => o.id === selections[key])?.emoji)
+    .filter(Boolean);
 }
 
 function OptionCard({ option, selected, onSelect }) {

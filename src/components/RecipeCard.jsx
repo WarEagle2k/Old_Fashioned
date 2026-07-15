@@ -1,4 +1,5 @@
 import StarRating from './StarRating';
+import { getCombinedRating } from '../data/recipes';
 
 const difficultyColors = {
   Easy: 'bg-success/20 text-success',
@@ -6,7 +7,8 @@ const difficultyColors = {
   Hard: 'bg-rich-red/20 text-rich-red',
 };
 
-export default function RecipeCard({ recipe, onClick }) {
+export default function RecipeCard({ recipe, onClick, userReviews = [] }) {
+  const { rating, count } = getCombinedRating(recipe, userReviews);
   return (
     <button
       onClick={() => onClick?.(recipe.id)}
@@ -51,9 +53,9 @@ export default function RecipeCard({ recipe, onClick }) {
 
         {/* Rating */}
         <div className="flex items-center gap-2 pt-1">
-          <StarRating rating={recipe.rating} size="sm" />
+          <StarRating rating={rating} size="sm" />
           <span className="text-sm text-dusty/60 font-body">
-            {recipe.rating} ({recipe.reviewCount})
+            {rating.toFixed(1)} ({count})
           </span>
         </div>
       </div>

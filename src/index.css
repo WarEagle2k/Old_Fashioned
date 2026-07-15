@@ -1,5 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Lato:wght@300;400;700;900&display=swap');
-
+/* Fonts are loaded via <link> tags in index.html so they don't block the CSS chain */
 @import "tailwindcss";
 
 @theme {
@@ -17,10 +16,27 @@
   --font-body: 'Lato', sans-serif;
 }
 
+@utility scrollbar-none {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-amber);
+  outline-offset: 2px;
+}
+
+::selection {
+  background-color: var(--color-amber);
+  color: var(--color-bg-dark);
 }
 
 body {

@@ -57,6 +57,7 @@ export default function HomePage({ navigate, reviews }) {
             <RecipeCard
               key={recipe.id}
               recipe={recipe}
+              userReviews={reviews?.[recipe.id]}
               onClick={(id) => navigate('recipe', id)}
             />
           ))}

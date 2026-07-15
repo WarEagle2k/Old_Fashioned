@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { recipes, getRecipesBySpirit } from '../data/recipes';
+import { getRecipesBySpirit } from '../data/recipes';
 import RecipeCard from '../components/RecipeCard';
 import SpiritFilter from '../components/SpiritFilter';
 
@@ -11,7 +11,7 @@ const sortOptions = [
 
 const difficultyOrder = { Easy: 1, Medium: 2, Hard: 3 };
 
-export default function RecipesPage({ navigate, selectedSpirit, setSelectedSpirit, reviews }) {
+export default function RecipesPage({ navigate, selectedSpirit, reviews }) {
   const [search, setSearch] = useState('');
   const [sortBy, setSortBy] = useState('rating');
 
@@ -51,9 +51,9 @@ export default function RecipesPage({ navigate, selectedSpirit, setSelectedSpiri
         </p>
       </div>
 
-      {/* Filter Bar */}
+      {/* Filter Bar — routed through the hash so the URL stays shareable */}
       <div className="mb-6">
-        <SpiritFilter selected={selectedSpirit} onSelect={setSelectedSpirit} />
+        <SpiritFilter selected={selectedSpirit} onSelect={(id) => navigate('recipes', id)} />
       </div>
 
       {/* Search + Sort */}
@@ -80,17 +80,28 @@ export default function RecipesPage({ navigate, selectedSpirit, setSelectedSpiri
             className="w-full pl-10 pr-4 py-2.5 bg-bg-elevated/60 border border-bg-elevated text-cream placeholder:text-dusty/40 rounded-lg font-body text-sm focus:outline-none focus:border-amber/50 focus:ring-1 focus:ring-amber/20 transition-all"
           />
         </div>
-        <select
-          value={sortBy}
-          onChange={(e) => setSortBy(e.target.value)}
-          className="px-4 py-2.5 bg-bg-elevated/60 border border-bg-elevated text-cream rounded-lg font-body text-sm focus:outline-none focus:border-amber/50 appearance-none cursor-pointer min-w-[160px]"
-        >
-          {sortOptions.map((opt) => (
-            <option key={opt.value} value={opt.value}>
-              {opt.label}
-            </option>
-          ))}
-        </select>
+        <div className="relative min-w-[160px]">
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+            aria-label="Sort recipes"
+            className="w-full px-4 pr-9 py-2.5 bg-bg-elevated/60 border border-bg-elevated text-cream rounded-lg font-body text-sm focus:outline-none focus:border-amber/50 appearance-none cursor-pointer"
+          >
+            {sortOptions.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
+          <svg
+            className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-dusty/50"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
+        </div>
       </div>
 
       {/* Grid */}
@@ -100,6 +111,7 @@ export default function RecipesPage({ navigate, selectedSpirit, setSelectedSpiri
             <RecipeCard
               key={recipe.id}
               recipe={recipe}
+              userReviews={reviews?.[recipe.id]}
               onClick={(id) => navigate('recipe', id)}
             />
           ))}
