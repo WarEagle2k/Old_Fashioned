@@ -1,7 +1,7 @@
 import { getTopRecipes, spiritTypes } from '../data/recipes';
 import RecipeCard from '../components/RecipeCard';
 
-export default function HomePage({ navigate }) {
+export default function HomePage({ navigate, reviews }) {
   const featured = getTopRecipes(3);
 
   return (
@@ -57,7 +57,12 @@ export default function HomePage({ navigate }) {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {featured.map((recipe) => (
-            <RecipeCard key={recipe.id} recipe={recipe} onClick={(id) => navigate('recipe', id)} />
+            <RecipeCard
+              key={recipe.id}
+              recipe={recipe}
+              userReviews={reviews?.[recipe.id]}
+              onClick={(id) => navigate('recipe', id)}
+            />
           ))}
         </div>
       </section>

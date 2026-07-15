@@ -1,6 +1,36 @@
 import { useState } from 'react';
 import { builderOptions } from '../data/recipes';
 
+function loadFavorites() {
+  try {
+    const stored = JSON.parse(localStorage.getItem('of-favorites') || '[]');
+    return Array.isArray(stored) ? stored : [];
+  } catch {
+    return [];
+  }
+}
+
+function persistFavorites(favorites) {
+  try {
+    localStorage.setItem('of-favorites', JSON.stringify(favorites));
+  } catch {
+    // Storage unavailable — favorites stay in memory for this session.
+  }
+}
+
+function selectionEmojis(selections = {}) {
+  const lookups = [
+    ['spirit', builderOptions.spirits],
+    ['sweetener', builderOptions.sweeteners],
+    ['bitters', builderOptions.bitters],
+    ['garnish', builderOptions.garnishes],
+    ['ice', builderOptions.iceStyles],
+  ];
+  return lookups
+    .map(([key, list]) => list.find((o) => o.id === selections[key])?.emoji)
+    .filter(Boolean);
+}
+
 const steps = [
   { key: 'spirit', title: 'Spirit', options: builderOptions.spirits },
   { key: 'sweetener', title: 'Sweetener', options: builderOptions.sweeteners },
@@ -35,18 +65,23 @@ export default function BuilderPage() {
   const [sel, setSel] = useState({ spirit: null, sweetener: null, bitters: null, garnish: null, ice: null });
   const [done, setDone] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [favorites, setFavorites] = useState(loadFavorites);
 
-  const pick = (k, v) => setSel((p) => ({ ...p, [k]: v }));
+  const pick = (k, v) => { setSel((p) => ({ ...p, [k]: v })); setSaved(false); };
   const canNext = () => step === 0 ? !!sel.spirit : step === 1 ? !!sel.sweetener : step === 2 ? !!sel.bitters : !!sel.garnish && !!sel.ice;
   const next = () => { if (step < 3) setStep(step + 1); else setDone(true); };
   const back = () => { if (done) setDone(false); else if (step > 0) setStep(step - 1); };
   const save = () => {
-    try {
-      const fav = JSON.parse(localStorage.getItem('of-favorites') || '[]');
-      fav.push({ id: Date.now(), name: generateName(sel), selections: { ...sel }, createdAt: new Date().toISOString() });
-      localStorage.setItem('of-favorites', JSON.stringify(fav));
-      setSaved(true);
-    } catch {}
+    const entry = { id: Date.now(), name: generateName(sel), selections: { ...sel }, createdAt: new Date().toISOString() };
+    const updated = [...favorites, entry];
+    setFavorites(updated);
+    persistFavorites(updated);
+    setSaved(true);
+  };
+  const deleteFavorite = (id) => {
+    const updated = favorites.filter((f) => f.id !== id);
+    setFavorites(updated);
+    persistFavorites(updated);
   };
   const reset = () => { setDone(false); setStep(0); setSel({ spirit: null, sweetener: null, bitters: null, garnish: null, ice: null }); setSaved(false); };
 
@@ -171,6 +206,32 @@ export default function BuilderPage() {
           {step === 3 ? 'Create' : 'Next'}
         </button>
       </div>
+
+      {favorites.length > 0 && (
+        <div className="mt-12">
+          <h2 className="font-sans text-base font-semibold text-cream mb-4">Your Saved Creations</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {favorites.slice().reverse().map((fav) => (
+              <div key={fav.id} className="bg-bg-surface border border-border rounded-xl p-4 flex items-start gap-3">
+                <span className="text-2xl">{selectionEmojis(fav.selections)[0] || '🥃'}</span>
+                <div className="flex-1 min-w-0">
+                  <p className="font-sans text-[13px] font-semibold text-cream truncate">{fav.name}</p>
+                  <p className="text-base mt-0.5" aria-hidden="true">{selectionEmojis(fav.selections).join(' ')}</p>
+                  <p className="text-subtle text-[11px] font-sans mt-1">
+                    {new Date(fav.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                  </p>
+                </div>
+                <button onClick={() => deleteFavorite(fav.id)} aria-label={`Delete ${fav.name}`}
+                  className="p-1.5 text-subtle hover:text-rich-red transition-colors cursor-pointer shrink-0">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

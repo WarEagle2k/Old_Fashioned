@@ -1,5 +1,5 @@
-import { useState, useMemo } from 'react';
-import { getRecipeById, spiritTypes } from '../data/recipes';
+import { useState } from 'react';
+import { getRecipeById, getCombinedRating, spiritTypes } from '../data/recipes';
 import StarRating from '../components/StarRating';
 
 export default function RecipeDetailPage({ recipeId, navigate, reviews, addReview }) {
@@ -9,12 +9,10 @@ export default function RecipeDetailPage({ recipeId, navigate, reviews, addRevie
   const [userRating, setUserRating] = useState(0);
   const [reviewName, setReviewName] = useState('');
   const [reviewComment, setReviewComment] = useState('');
+  const [reviewSubmitted, setReviewSubmitted] = useState(false);
 
   const recipeReviews = reviews?.[recipeId] || [];
-  const avgRating = useMemo(() => {
-    const all = [...Array(recipe?.reviewCount || 0).fill(recipe?.rating || 0), ...recipeReviews.map((r) => r.rating)];
-    return all.length === 0 ? 0 : all.reduce((a, b) => a + b, 0) / all.length;
-  }, [recipe, recipeReviews]);
+  const { rating: avgRating, count: totalReviews } = getCombinedRating(recipe, recipeReviews);
 
   if (!recipe) {
     return (
@@ -32,6 +30,7 @@ export default function RecipeDetailPage({ recipeId, navigate, reviews, addRevie
     if (userRating === 0) return;
     addReview(recipeId, { rating: userRating, name: reviewName.trim() || 'Anonymous', comment: reviewComment.trim() });
     setUserRating(0); setReviewName(''); setReviewComment('');
+    setReviewSubmitted(true);
   };
 
   return (
@@ -57,7 +56,7 @@ export default function RecipeDetailPage({ recipeId, navigate, reviews, addRevie
               <p className="text-sm sm:text-base text-muted font-sans leading-relaxed max-w-2xl">{recipe.description}</p>
               <div className="flex items-center gap-2">
                 <StarRating rating={avgRating} size="sm" />
-                <span className="text-[13px] text-muted font-sans">{avgRating.toFixed(1)} ({recipe.reviewCount + recipeReviews.length})</span>
+                <span className="text-[13px] text-muted font-sans">{avgRating.toFixed(1)} ({totalReviews})</span>
               </div>
             </div>
           </div>
@@ -145,14 +144,19 @@ export default function RecipeDetailPage({ recipeId, navigate, reviews, addRevie
           <div className="text-center space-y-2">
             <p className="text-3xl font-sans font-bold text-cream">{avgRating.toFixed(1)}</p>
             <StarRating rating={avgRating} size="md" />
-            <p className="text-[13px] text-muted font-sans">{recipe.reviewCount + recipeReviews.length} reviews</p>
+            <p className="text-[13px] text-muted font-sans">{totalReviews} reviews</p>
           </div>
 
           <form onSubmit={handleSubmitReview} className="bg-bg-surface border border-border rounded-xl p-5 space-y-4">
             <h3 className="font-sans text-base font-semibold text-cream">Leave a Review</h3>
             <div>
               <label className="block text-[13px] text-muted font-sans mb-1.5">Rating</label>
-              <StarRating rating={userRating} size="md" interactive onRate={setUserRating} />
+              <StarRating
+                rating={userRating}
+                size="md"
+                interactive
+                onRate={(r) => { setUserRating(r); setReviewSubmitted(false); }}
+              />
             </div>
             <div>
               <label className="block text-[13px] text-muted font-sans mb-1.5">Name</label>
@@ -164,16 +168,21 @@ export default function RecipeDetailPage({ recipeId, navigate, reviews, addRevie
               <textarea value={reviewComment} onChange={(e) => setReviewComment(e.target.value)} rows={3} placeholder="Share your thoughts..."
                 className="w-full px-3 py-2 bg-bg-dark border border-border text-cream placeholder:text-subtle rounded-lg font-sans text-sm focus:outline-none focus:border-muted transition-colors resize-none" />
             </div>
-            <button type="submit" disabled={userRating === 0}
-              className="px-5 py-2 bg-amber hover:bg-gold text-white font-sans font-semibold text-sm rounded-lg transition-colors duration-200 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer active:scale-95">
-              Submit
-            </button>
+            <div className="flex items-center gap-3 flex-wrap">
+              <button type="submit" disabled={userRating === 0}
+                className="px-5 py-2 bg-amber hover:bg-gold text-white font-sans font-semibold text-sm rounded-lg transition-colors duration-200 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer active:scale-95">
+                Submit
+              </button>
+              {reviewSubmitted && (
+                <p role="status" className="text-success font-sans text-[13px]">Thanks — your review has been added!</p>
+              )}
+            </div>
           </form>
 
           {recipeReviews.length > 0 && (
             <div className="space-y-3">
               {recipeReviews.slice().reverse().map((review, idx) => (
-                <div key={idx} className="bg-bg-surface border border-border rounded-xl p-4 space-y-1.5">
+                <div key={review.date || idx} className="bg-bg-surface border border-border rounded-xl p-4 space-y-1.5">
                   <div className="flex items-center justify-between">
                     <span className="text-cream font-sans font-medium text-[13px]">{review.name || 'Anonymous'}</span>
                     <span className="text-subtle text-[11px] font-sans">{new Date(review.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
